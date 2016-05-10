@@ -18,26 +18,11 @@
 
 <configuration>
     <property>
-        <name>dfs.replication</name>
-        <value>1</value>
+         <name>fs.defaultFS</name>
+         <value>hdfs://localhost:9000</value>
     </property>
     <property>
-        <name>dfs.name.dir</name>
-        <value>file:///home/yarn/apache-hadoop-install-dir/name</value>
+         <name>hadoop.registry.zk.quorum</name>
+         <value>localhost:2181</value>
     </property>
-    <property>
-        <name>dfs.data.dir</name>
-        <value>file:///home/yarn/apache-hadoop-install-dir/data</value>
-    </property>
-
-    <property>
-        <name>dfs.webhdfs.enabled</name>
-        <value>true</value>
-    </property>
-    <property>
-        <name>dfs.namenode.http-address</name>
-        <value>localhost:50070</value>
-    </property>
-
-
 </configuration>
