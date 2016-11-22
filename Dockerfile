@@ -1,4 +1,4 @@
-# Creates pseudo distributed hadoop 2.7.1
+# Creates pseudo distributed hadoop 3.0.0
 #
 # docker build -t sequenceiq/hadoop .
 
@@ -8,7 +8,6 @@ MAINTAINER SequenceIQ
 USER root
 ENV http_proxy http://10.239.4.80:913
 ENV https_proxy http://10.239.4.80:913
-RUN adduser -m -u 1001 yarn
 # install dev tools
 RUN yum clean all; \
     rpm --rebuilddb; \
@@ -17,9 +16,10 @@ RUN yum clean all; \
 RUN yum update -y libselinux
 
 # java
-RUN curl -LO 'http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jdk-7u71-linux-x64.rpm' -H 'Cookie: oraclelicense=accept-securebackup-cookie'
-RUN rpm -i jdk-7u71-linux-x64.rpm
-RUN rm jdk-7u71-linux-x64.rpm
+#RUN curl -LO 'http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jdk-7u71-linux-x64.rpm' -H 'Cookie: oraclelicense=accept-securebackup-cookie'
+RUN curl -LO 'http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-linux-x64.rpm' -H 'Cookie: oraclelicense=accept-securebackup-cookie'
+RUN rpm -i jdk-8u111-linux-x64.rpm
+RUN rm jdk-8u111-linux-x64.rpm
 
 ENV JAVA_HOME /usr/java/default
 ENV PATH $PATH:$JAVA_HOME/bin
@@ -27,11 +27,11 @@ RUN rm /usr/bin/java && ln -s $JAVA_HOME/bin/java /usr/bin/java
 
 # download native support
 RUN mkdir -p /tmp/native
-ADD hadoop-native-64-2.7.1.tgz /tmp/native
+ADD hadoop-native-64-3.0-alpha2.tgz /tmp/native
 
 # hadoop
-ADD hadoop-2.7.1.tar.gz /usr/local/
-RUN cd /usr/local && ln -s ./hadoop-2.7.1 hadoop
+ADD hadoop-3.0.0-alpha2-SNAPSHOT.tar.gz /usr/local/
+RUN cd /usr/local && ln -s ./hadoop-3.0.0-alpha2-SNAPSHOT hadoop
 
 ENV HADOOP_PREFIX /usr/local/hadoop
 ENV HADOOP_COMMON_HOME /usr/local/hadoop
@@ -68,13 +68,19 @@ RUN ls -la /usr/local/hadoop/etc/hadoop/*-env.sh
 RUN sed  -i "/^[^#]*UsePAM/ s/.*/#&/"  /etc/ssh/sshd_config
 RUN echo "UsePAM no" >> /etc/ssh/sshd_config
 RUN echo "Port 2122" >> /etc/ssh/sshd_config
-
+# test for YARN-4266
+RUN groupadd -g 1002 hadoop
+RUN adduser -m -u 1003 -g hadoop --home /home/testuser1 testuser1
+RUN adduser -m -u 1001 yarn
+#USER testuser1
+#WORKDIR /home/testuser1
+#
 #install python
-ADD get-pip.py /get-pip.py
-RUN chmod +x get-pip.py && python get-pip.py
-RUN yum install -y python-pip python-devel
-RUN yum groupinstall -y "Development Tools"
-RUN pip install pika
+#ADD get-pip.py /get-pip.py
+#RUN chmod +x get-pip.py && python get-pip.py
+#RUN yum install -y python-pip python-devel
+#RUN yum groupinstall -y "Development Tools"
+#RUN pip install pika
 #add python app
-RUN gpasswd -a yarn wheel
-ADD run.py /run.py
+#RUN gpasswd -a yarn wheel
+#ADD run.py /run.py
